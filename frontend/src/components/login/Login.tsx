@@ -3,38 +3,58 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
-export default function Login() {
+const Login = () => {
     const apiUrl = 'http://localhost:8000';
-    const [inputUsername, setInputUsername] = useState("");
-    const [inputPassword, setInputPassword] = useState("");
+    const [username, setInputUsername] = useState("");
+    const [password, setInputPassword] = useState("");
     const [showError, setShowError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        // Fetch CSRF token from cookies and set it in Axios headers
-        const csrfToken = Cookies.get('csrftoken');
-        axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
-    }, []);
+    // useEffect(() => {
+    //     // Fetch CSRF token from cookies and set it in Axios headers
+    //     const csrfToken = Cookies.get('csrftoken');
+    //     axios.defaults.headers.post['X-CSRFToken'] = csrfToken;
+    // }, []);
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setLoading(true);
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+    //     setLoading(true);
 
-        try {
-            const response = await axios.post(`${apiUrl}/login/`, {
-                username: inputUsername,
-                password: inputPassword
+    //     try {
+    //         const response = await axios.post(`${apiUrl}/login/`, {
+    //             username: inputUsername,
+    //             password: inputPassword
+    //         });
+    //         console.log(response.data); // Handle successful login
+    //         setLoading(false);
+    //     } catch (error) {
+    //         console.error('Login failed:', error.response?.data?.error || error.message); // Handle login error
+    //         setErrorMessage(error.response?.data?.error || 'Login failed. Please try again.');
+    //         setShowError(true);
+    //         setLoading(false);
+    //     }
+    // };
+
+    const handleLogin = async (e) =>{
+        e.preventDefault(); 
+
+        try{
+            const response = await axios.post ('http://localhost:8000/login/', {
+                username, 
+                password,
             });
-            console.log(response.data); // Handle successful login
-            setLoading(false);
-        } catch (error) {
-            console.error('Login failed:', error.response?.data?.error || error.message); // Handle login error
-            setErrorMessage(error.response?.data?.error || 'Login failed. Please try again.');
-            setShowError(true);
-            setLoading(false);
+
+            localStorage.setItem('access_token', response.data.access);
+            localStorage.setItem('refresh_token', response.data.refresh); 
+
+            axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
+            window.location.href = '/add'; 
         }
-    };
+        catch(error){
+            setError('Invalid creds yo');
+        }
+    }
 
     return (
         <section style={{ alignItems: "center", backgroundColor: "#f0f2f5", display: "flex", height: "100vh", padding: "64px 0px" }}>
@@ -42,10 +62,10 @@ export default function Login() {
                 <div style={{ marginBottom: "24px" }}>
                     <h1 style={{ marginBottom: "12px", fontSize: "24px" }}>Log in</h1>
                 </div>
-                <form onSubmit={handleSubmit} style={{ marginBottom: "24px" }}>
+                <form onSubmit={handleLogin} style={{ marginBottom: "24px" }}>
                     <input
                         type="text"
-                        value={inputUsername}
+                        value={username}
                         onChange={(e) => setInputUsername(e.target.value)}
                         placeholder="Username"
                         aria-label="Username"
@@ -54,7 +74,7 @@ export default function Login() {
                     />
                     <input
                         type="password"
-                        value={inputPassword}
+                        value={password}
                         onChange={(e) => setInputPassword(e.target.value)}
                         placeholder="Password"
                         aria-label="Password"
@@ -78,3 +98,5 @@ export default function Login() {
         </section>
     );
 }
+
+export default Login; 

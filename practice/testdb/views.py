@@ -1,13 +1,19 @@
 import json
-from django.contrib import messages
+from django.contrib import messages, admin
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status 
+
+from .models import New
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -15,21 +21,35 @@ def home(request):
     return render (request, 'home.html')
 
 
-@require_POST
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+class LoginView (APIView): 
+    def post(self, request): 
+        username = request.data.get('username')
+        password = request.data.get('password')
+        user= authenticate(username=username, password=password)
 
-        user = authenticate(request, username=username, password=password)
+        if user is not None: 
+            refresh = RefreshToken.for_user(user)
+            return Response ({
+                'refresh': str(refresh), 
+                'access': str(refresh.access_token), 
+            })
+        return Response({'error': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if user is not None:
-            login(request, user)
-            return JsonResponse({'message': 'Login successful'})
-        else:
-            return JsonResponse({'error': 'Invalid username or password'}, status=400)
+# @require_POST
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
 
-    return JsonResponse({'error': 'Method not allowed'}, status=405)
+#         user = authenticate(request, username=username, password=password)
+
+#         if user is not None:
+#             login(request, user)
+#             return JsonResponse({'message': 'Login successful'})
+#         else:
+#             return JsonResponse({'error': 'Invalid username or password'}, status=400)
+
+#     return JsonResponse({'error': 'Method not allowed'}, status=405)
 
 
 @csrf_exempt
@@ -49,7 +69,6 @@ def signup_view(request):
         login(request, user)
         return JsonResponse({"message": "Signup successful"}, status=201)
     
-    # If the request is not a POST request, return a 405 Method Not Allowed error
     return JsonResponse({"error": "Method Not Allowed"}, status=405)
 
 @ensure_csrf_cookie
@@ -62,3 +81,26 @@ def whoami_view(request):
     if not request.user.is_authenticated:
         return JsonResponse({"isAuthenticated": False})
     return JsonResponse({"username":request.user.username})
+
+def get_products(request):
+    all_products = New.objects.all().values("id", "name", "highlights", "image_url", "price")
+    items_per_page = 15
+    
+    paginator = Paginator(all_products, items_per_page)
+    page_number = request.GET.get('page', 1)
+
+    products_on_page = paginator.get_page(page_number)
+    serialized_products = list(products_on_page)
+    return JsonResponse({"products": serialized_products})
+
+
+@csrf_exempt
+def delete_product(request, id): 
+    obj= get_object_or_404(New, id=id)
+
+    response = f"object {id} was deleted"
+    if request.method == "POST":
+        obj.delete()
+        return JsonResponse({"message":response})
+    
+    return JsonResponse({"message": "does not exist"})

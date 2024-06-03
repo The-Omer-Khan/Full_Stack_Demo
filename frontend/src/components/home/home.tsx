@@ -1,76 +1,128 @@
-import React from "react";
-import { Layout, Menu, Typography, Card, Row, Col } from "antd";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Layout, Typography, Card, Row, Col, Pagination, Modal, Button } from "antd";
+import { DeleteOutlined } from '@ant-design/icons';
+import './home.css'; // Import custom CSS file for styling
 
-const { Header, Content } = Layout;
+const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
-const products = [
-	{
-		id: 1,
-		name: "Product 1",
-		description:
-			"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec convallis fermentum augue.",
-	},
-	{
-		id: 2,
-		name: "Product 2",
-		description:
-			"Nam condimentum efficitur risus, nec iaculis tortor tincidunt sed. Ut in eros at nunc tristique sodales.",
-	},
-	{
-		id: 3,
-		name: "Product 3",
-		description:
-			"Sed id enim vestibulum, bibendum ipsum vel, bibendum lorem. Integer suscipit sapien vitae odio lobortis.",
-	},
-];
-
 function HomePage() {
-	return (
-		<Layout>
-			<Header style={{ position: "fixed", zIndex: 1, width: "100%" }}>
-				<div
-					className="logo"
-					style={{
-						width: 120,
-						height: 31,
-						background: "rgba(255, 255, 255, 0.2)",
-						margin: "16px 24px 16px 0",
-						float: "left",
-					}}
-				/>
-				<Menu
-					theme="dark"
-					mode="horizontal"
-					defaultSelectedKeys={["1"]}
-					style={{ lineHeight: "64px" }}>
-					<Menu.Item key="1">
-						<Link to="/login">Login</Link>
-					</Menu.Item>
-					<Menu.Item key="2">
-						<Link to="/signup">Sign Up</Link>
-					</Menu.Item>
-				</Menu>
-			</Header>
-			<Content style={{ padding: "0 50px", marginTop: 64 }}>
-				<div style={{ background: "#fff", padding: 24, minHeight: 380 }}>
-					<Title level={2}>Welcome to Our Product Page</Title>
-					<Row gutter={[16, 16]}>
-						{products.map(product => (
-							<Col key={product.id} span={8}>
-								<Card>
-									<Title level={3}>{product.name}</Title>
-									<Paragraph>{product.description}</Paragraph>
-									<Link to={`/product/${product.id}`}>View Details</Link>
-								</Card>
-							</Col>
-						))}
-					</Row>
-				</div>
-			</Content>
-		</Layout>
-	);
+    const [products, setProducts] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(2);
+    const [totalProducts, setTotalProducts] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
+    useEffect(() => {
+        fetchProducts();
+    }, [currentPage]);
+
+    const fetchProducts = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/products?page=${currentPage}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch products");
+            }
+            const data = await response.json();
+            setProducts(data.products);
+            setTotalPages(data.total_pages);
+            setTotalProducts(data.total_products);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+        }
+    };
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const handleDelete = async (productId) => {
+        try {
+
+            const response = await fetch(`http://localhost:8000/api/delete-product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error("Failed to delete product");
+            }
+            // Refresh the product list after deletion
+            fetchProducts();
+        } catch (error) {
+            console.error("Error deleting product:", error);
+        }
+    };
+
+    const showModal = (product) => {
+        setSelectedProduct(product);
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+
+
+    return (
+        <Layout>
+            <Content className="home-content">
+                <div className="home-container">
+                  
+  
+                    <Title level={2} className="home-title">Welcome to Our Product Page</Title>
+                    <Row gutter={[48,64]} justify="center">
+                        {products.map(product => (
+                            <Col key={product.id} span={6}>
+                                <Card
+                                    hoverable
+                                    className="product-card"
+                                    cover={<img alt={product.name} src={product.image_url} className="product-image" />}
+                                    actions={[
+                                        <Button type="link" onClick={() => showModal(product)}>View Details</Button>,
+                                        <DeleteOutlined key="delete" onClick={() => handleDelete(product.id)} />
+                                    ]}
+                                >
+                                    <Title level={4} className="product-name">{product.name}</Title>
+                                    <Paragraph className="product-highlights">{product.highlights}</Paragraph>
+                                    <h2 className="product-price">Rs. {product.price}</h2>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                    <Pagination
+                        current={currentPage}
+                        onChange={handlePageChange}
+                        total={totalProducts}
+                        pageSize={15}
+                        className="pagination"
+                    />
+                    </div>
+                    <Modal
+                    title={selectedProduct ? selectedProduct.name : "Product Details"}
+                    open={isModalOpen}
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                >
+                    {selectedProduct && (
+                        <>
+                            <img alt={selectedProduct.name} src={selectedProduct.image_url} className="product-image" />
+                            <Title level={4} className="product-name">{selectedProduct.name}</Title>
+                            <Paragraph className="product-highlights">{selectedProduct.highlights}</Paragraph>
+                            <h2 className="product-price">Rs. {selectedProduct.price}</h2>
+                        </>
+                    )}
+                </Modal>
+            </Content>
+        </Layout>
+    );
 }
 
 export default HomePage;

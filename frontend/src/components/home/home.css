@@ -1,0 +1,61 @@
+.home-content {
+    padding: 50px 0;
+}
+
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.home-title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.product-card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-image {
+    height: 200px;
+    object-fit: cover;
+}
+
+.product-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.product-price{
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.product-highlights {
+    font-size: 16px;
+    margin-bottom: 20px;
+    height: 50px; /* Limit height to show only one line of text */
+    overflow: hidden;
+}
+
+.product-link {
+    margin-top: auto;
+    text-align: center;
+    display: block;
+    color: #1890ff; /* Ant Design primary color */
+}
+
+.pagination {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+}

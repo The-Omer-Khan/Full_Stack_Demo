@@ -17,9 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
+from django.contrib import admin
+from django.urls import path, include
+from rest_framework_simplejwt import views as jwt_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', views.login_view, name="login"),
-    path('signup/', views.signup_view, name="signup")
+    path('login/', views.LoginView.as_view(), name="token_obtain_pair"),
+    path('signup/', views.signup_view, name="signup"), 
+    path("api/products/", views.get_products, name="get_products"),
+    path('api/delete-product/<int:id>', views.delete_product, name='delete_product'),
+    path('token/', 
+          jwt_views.TokenObtainPairView.as_view(), 
+          name ='token_obtain_pair'),
+    path('token/refresh/', 
+          jwt_views.TokenRefreshView.as_view(), 
+          name ='token_refresh')
 ]
