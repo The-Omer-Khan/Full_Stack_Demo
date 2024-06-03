@@ -71,16 +71,36 @@ def signup_view(request):
     
     return JsonResponse({"error": "Method Not Allowed"}, status=405)
 
-@ensure_csrf_cookie
-def session_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"isAuthenticated": False})
-    return JsonResponse({"isAuthenticated": True})
 
-def whoami_view(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({"isAuthenticated": False})
-    return JsonResponse({"username":request.user.username})
+@csrf_exempt
+def delete_product(request, id): 
+    obj= get_object_or_404(New, id=id)
+
+    response = f"object {id} was deleted"
+    if request.method == "POST":
+        obj.delete()
+        return JsonResponse({"message":response})
+    
+    return JsonResponse({"message": "does not exist"})
+
+@csrf_exempt
+def add_product (request): 
+    if request.method == 'POST': 
+        name = request.POST.get('name')
+        price = request.POST.get('price')
+        highlights = request.POST.get('highlights')
+        image_url = request.POST.get('image_url')
+
+
+        product= New.objects.create(
+            name=name,
+            price=price, 
+            highlights = highlights, 
+            image_url= image_url, 
+        )
+        return JsonResponse({"message": "new item added"})
+    return JsonResponse({"message": "failed to add item"})
+
 
 def get_products(request):
     all_products = New.objects.all().values("id", "name", "highlights", "image_url", "price")
@@ -93,14 +113,3 @@ def get_products(request):
     serialized_products = list(products_on_page)
     return JsonResponse({"products": serialized_products})
 
-
-@csrf_exempt
-def delete_product(request, id): 
-    obj= get_object_or_404(New, id=id)
-
-    response = f"object {id} was deleted"
-    if request.method == "POST":
-        obj.delete()
-        return JsonResponse({"message":response})
-    
-    return JsonResponse({"message": "does not exist"})

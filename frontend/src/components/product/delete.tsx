@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Typography, Card, Row, Col, Pagination, Modal, Button } from "antd";
-import './home.css'; // Import custom CSS file for styling
+import { DeleteOutlined } from '@ant-design/icons';
+import './product.css'; 
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
-function HomePage() {
+function DeleteProducts() {
     const [products, setProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(2);
@@ -36,7 +37,24 @@ function HomePage() {
         setCurrentPage(page);
     };
 
-    
+    const handleDelete = async (productId) => {
+        try {
+
+            const response = await fetch(`http://localhost:8000/api/delete-product/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!response.ok) {
+                throw new Error("Failed to delete product");
+            }
+            // Refresh the product list after deletion
+            fetchProducts();
+        } catch (error) {
+            console.error("Error deleting product:", error);
+        }
+    };
 
     const showModal = (product) => {
         setSelectedProduct(product);
@@ -59,7 +77,7 @@ function HomePage() {
                 <div className="home-container">
                   
   
-                    <Title level={2} className="home-title">Welcome to Our Product Page</Title>
+                    <Title level={2} className="home-title">Delete Products</Title>
                     <Row gutter={[48,64]} justify="center">
                         {products.map(product => (
                             <Col key={product.id} span={6}>
@@ -69,7 +87,7 @@ function HomePage() {
                                     cover={<img alt={product.name} src={product.image_url} className="product-image" />}
                                     actions={[
                                         <Button type="link" onClick={() => showModal(product)}>View Details</Button>,
-                                        
+                                        <DeleteOutlined key="delete" onClick={() => handleDelete(product.id)} />
                                     ]}
                                 >
                                     <Title level={4} className="product-name">{product.name}</Title>
@@ -107,4 +125,4 @@ function HomePage() {
     );
 }
 
-export default HomePage;
+export default DeleteProducts;

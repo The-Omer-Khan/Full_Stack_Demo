@@ -32,5 +32,8 @@ urlpatterns = [
           name ='token_obtain_pair'),
     path('token/refresh/', 
           jwt_views.TokenRefreshView.as_view(), 
-          name ='token_refresh')
+          name ='token_refresh'), 
+
+    path('api/add-product/', views.add_product, name='add_product'), 
+
 ]
