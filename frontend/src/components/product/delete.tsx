@@ -8,6 +8,8 @@ import {
   Pagination,
   Modal,
   Button,
+  Form,
+  Input,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import "./product.css";
@@ -22,6 +24,11 @@ function DeleteProducts() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const [productName, setProductName] = useState("");
+  const [productPrice, setProductPrice] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [productHighlights, setProductHighlights] = useState("");
 
   useEffect(() => {
     fetchProducts();
@@ -71,6 +78,10 @@ function DeleteProducts() {
 
   const showModal = (product) => {
     setSelectedProduct(product);
+    setProductName(product.name);
+    setProductPrice(product.price);
+    setImageUrl(product.image_url);
+    setProductHighlights(product.highlights);
     setIsModalOpen(true);
   };
 
@@ -82,12 +93,43 @@ function DeleteProducts() {
     setIsModalOpen(false);
   };
 
+  const handleSubmit = async () => {
+    const values = {
+      search_name: selectedProduct.name,
+      update_name: productName,
+      update_price: productPrice,
+      update_image_url: imageUrl,
+      update_highlights: productHighlights,
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/api/update/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (response.ok) {
+        console.log("Product updated successfully!");
+        // Refresh the product list after update
+        fetchProducts();
+        setIsModalOpen(false);
+      } else {
+        console.error("Failed to update product:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
   return (
     <Layout>
       <Content className="home-content">
         <div className="home-container">
           <Title level={2} className="home-title">
-            Delete Products
+            Edit Products
           </Title>
           <Row gutter={[48, 64]} justify="center">
             {products.map((product) => (
@@ -151,6 +193,79 @@ function DeleteProducts() {
                 {selectedProduct.highlights}
               </Paragraph>
               <h2 className="product-price">Rs. {selectedProduct.price}</h2>
+
+              <Form
+                labelCol={{ span: 8 }}
+                wrapperCol={{ span: 14 }}
+                onFinish={handleSubmit}
+              >
+                <Form.Item
+                  label="Product Name"
+                  name="update_name"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input product name!",
+                    },
+                  ]}
+                >
+                  <Input
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Product Price"
+                  name="update_price"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input product price!",
+                    },
+                  ]}
+                >
+                  <Input
+                    value={productPrice}
+                    onChange={(e) => setProductPrice(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Image Url"
+                  name="update_image_url"
+                  rules={[
+                    { required: true, message: "Please input image URL!" },
+                  ]}
+                >
+                  <Input
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  label="Product Highlights"
+                  name="update_highlights"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input product highlights!",
+                    },
+                  ]}
+                >
+                  <Input.TextArea
+                    value={productHighlights}
+                    onChange={(e) => setProductHighlights(e.target.value)}
+                  />
+                </Form.Item>
+
+                <Form.Item wrapperCol={{ offset: 4, span: 14 }}>
+                  <Button type="primary" htmlType="submit">
+                    Update Product
+                  </Button>
+                </Form.Item>
+              </Form>
             </>
           )}
         </Modal>

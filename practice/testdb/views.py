@@ -14,6 +14,7 @@ from rest_framework import status
 
 from .models import New
 from django.core.paginator import Paginator
+from django.core import serializers
 
 # Create your views here.
 
@@ -116,4 +117,35 @@ def get_products(request):
         "total_pages": paginator.num_pages,
         "total_products": paginator.count,
         "current_page": page_number
+    })
+
+@csrf_exempt
+def update_product(request):
+    if request.method == "POST": 
+        data = json.loads(request.body)
+        print ("looking here", data)
+        
+        search_name= data.get('search_name')
+        product = New.objects.get(name=search_name)
+        
+
+        if (data.get('update_name')): 
+            product.name= data.get('update_name')
+
+        if (data.get('update_price')): 
+            product.price= data.get('update_price')
+
+        if (data.get('update_image_url')): 
+            product.image_url= data.get('update_image_url')
+
+        if (data.get('update_highlights')): 
+            product.highlights= data.get('update_highlights')
+
+        product.save()
+
+        print ("looking here", product)
+
+    serialized_obj = serializers.serialize('json', [ product, ])
+    return JsonResponse({
+        "update_product" : serialized_obj, 
     })

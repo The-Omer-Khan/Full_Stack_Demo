@@ -34,5 +34,6 @@ urlpatterns = [
           jwt_views.TokenRefreshView.as_view(), 
           name ='token_refresh'),
     path('api/add-product/', views.add_product, name='add_product'),
+    path('api/update/', views.update_product, name="update"), 
 
 ]
