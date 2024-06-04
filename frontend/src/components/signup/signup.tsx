@@ -61,7 +61,7 @@ export default function Signup() {
 
                   <h1 style={{ marginBottom: "12px", fontSize: "24px" }}>Sign up</h1>
                   <p style={{ color: "#5f7381" }}>
-                      Welcome to AntBlocks UI! Please enter your details below to sign up.
+                    Sign Up!
                   </p>
               </div>
               <form onSubmit={handleSubmit} style={{ marginBottom: "24px" }}>

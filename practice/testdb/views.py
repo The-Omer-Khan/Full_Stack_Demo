@@ -85,31 +85,35 @@ def delete_product(request, id):
 
 @csrf_exempt
 def add_product (request): 
-    if request.method == 'POST': 
-        name = request.POST.get('name')
-        price = request.POST.get('price')
-        highlights = request.POST.get('highlights')
-        image_url = request.POST.get('image_url')
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        name = data.get('name')
+        price = data.get('price')
+        highlights = data.get('highlights')
+        image_url = data.get('image_url')
 
-
-        product= New.objects.create(
+        new_instance = New.objects.create(
             name=name,
-            price=price, 
-            highlights = highlights, 
-            image_url= image_url, 
+            price=price,
+            highlights=highlights,
+            image_url=image_url
         )
-        return JsonResponse({"message": "new item added"})
-    return JsonResponse({"message": "failed to add item"})
+        return JsonResponse({'id': new_instance.id, 'name': new_instance.name}, status=201)
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 def get_products(request):
     all_products = New.objects.all().values("id", "name", "highlights", "image_url", "price")
-    items_per_page = 15
-    
+    items_per_page = 8
+
     paginator = Paginator(all_products, items_per_page)
     page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
 
-    products_on_page = paginator.get_page(page_number)
-    serialized_products = list(products_on_page)
-    return JsonResponse({"products": serialized_products})
-
+    serialized_products = list(page_obj)
+    return JsonResponse({
+        "products": serialized_products,
+        "total_pages": paginator.num_pages,
+        "total_products": paginator.count,
+        "current_page": page_number
+    })
