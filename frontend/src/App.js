@@ -9,7 +9,7 @@ import HomePage from "./components/home/home.tsx";
 import Login from "./components/login/Login.tsx";
 import Signup from "./components/signup/signup.tsx";
 import AddProductPage from "./components/product/add.tsx";
-import DeleteProducts from "./components/product/delete.tsx";
+import EditProducts from "./components/product/edit.tsx";
 import Navbar from "./components/nav/index.js";
 
 function App() {
@@ -31,9 +31,9 @@ function App() {
             }
           />
           <Route
-            path="/delete"
+            path="/edit"
             element={
-              isAuthenticated ? <DeleteProducts /> : <Navigate to="/login" />
+              isAuthenticated ? <EditProducts /> : <Navigate to="/login" />
             }
           />
         </Routes>

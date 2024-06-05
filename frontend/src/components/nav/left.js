@@ -5,17 +5,11 @@ import { Link } from "react-router-dom";
 const LeftMenu = ({ mode }) => {
   return (
     <Menu mode={mode}>
-      <Menu.Item key="explore">
-        <Link to="/explore">Explore</Link>
+      <Menu.Item key="login">
+        <Link to="/login">Login</Link>
       </Menu.Item>
-      <Menu.Item key="features">
-        <Link to="/features">Features</Link>
-      </Menu.Item>
-      <Menu.Item key="about">
-        <Link to="/about">About Us</Link>
-      </Menu.Item>
-      <Menu.Item key="contact">
-        <Link to="/contact">Contact Us</Link>
+      <Menu.Item key="signup">
+        <Link to="/signup">Signup</Link>
       </Menu.Item>
     </Menu>
   );
