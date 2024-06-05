@@ -15,15 +15,11 @@ const RightMenu = ({ mode }) => {
         }
       >
         <Menu.Item key="project">
-          <Link to="/projects">
-            <CodeOutlined /> Projects
+          <Link to="/login">
+            <CodeOutlined /> Login
           </Link>
         </Menu.Item>
-        <Menu.Item key="profile">
-          <Link to="/profile">
-            <UserOutlined /> Profile
-          </Link>
-        </Menu.Item>
+
         <Menu.Item key="logout">
           <Link to="/logout">
             <LogoutOutlined /> Logout

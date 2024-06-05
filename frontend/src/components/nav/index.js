@@ -3,7 +3,6 @@ import { MenuOutlined } from "@ant-design/icons";
 import { useLocation } from "react-router-dom";
 import { Layout, Button, Drawer } from "antd";
 import RightMenu from "./right";
-import LeftMenu from "./left";
 import "./nav.css";
 
 const Navbar = () => {
@@ -25,12 +24,10 @@ const Navbar = () => {
       <Layout>
         <Layout.Header className="nav-header">
           <div className="logo">
-            <h3 className="brand-font">Test Site</h3>
+            {/* <h3 className="brand-font">Test Site</h3> */}
           </div>
           <div className="navbar-menu">
-            <div className="leftMenu">
-              <LeftMenu mode={"horizontal"} />
-            </div>
+            <div className="leftMenu"></div>
             <Button className="menuButton" type="text" onClick={showDrawer}>
               <MenuOutlined />
             </Button>
@@ -46,7 +43,6 @@ const Navbar = () => {
               visible={visible}
               style={{ zIndex: 99999 }}
             >
-              <LeftMenu mode={"inline"} />
               <RightMenu mode={"inline"} />
             </Drawer>
           </div>

@@ -25,13 +25,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route
-            path="/add"
+            path="/edit"
             element={
               isAuthenticated ? <AddProductPage /> : <Navigate to="/login" />
             }
           />
           <Route
-            path="/edit"
+            path="/add"
             element={
               isAuthenticated ? <EditProducts /> : <Navigate to="/login" />
             }
