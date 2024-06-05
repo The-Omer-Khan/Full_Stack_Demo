@@ -243,11 +243,14 @@ function EditProducts() {
         >
           {selectedProduct && (
             <>
-              <img
-                alt={selectedProduct.name}
-                src={selectedProduct.image_url}
-                className="product-image"
-              />
+              <div style={{ textAlign: "center" }}>
+                <img
+                  alt={selectedProduct.name}
+                  src={selectedProduct.image_url}
+                  className="product-image"
+                  style={{ display: "block", margin: "auto", width: "250px" }}
+                />
+              </div>
               <Title level={4} className="product-name">
                 {selectedProduct.name}
               </Title>
@@ -339,11 +342,13 @@ function EditProducts() {
           onCancel={handleCancel}
         >
           <>
-            <img
-              alt="add new product"
-              src={`https://cdn4.iconfinder.com/data/icons/storeage-box/100/DPid-ICONS-61-512.png`}
-              className="product-image"
-            />
+            <div style={{ textAlign: "center" }}>
+              <img
+                alt="add new product"
+                src={`https://cdn4.iconfinder.com/data/icons/storeage-box/100/DPid-ICONS-61-512.png`}
+                style={{ display: "block", margin: "auto", width: "200px" }}
+              />
+            </div>
             <Title level={4} className="product-name">
               Add New
             </Title>
